@@ -113,7 +113,7 @@ cat(paste0("Running convertData.R for ",yearToProcess,"\n"))
 
 files_df <- read.csv("data_locations.csv") %>%
   mutate(input_file=paste0("data/",file_name)) %>%
-  mutate(output_file=paste0("output/", gsub(".zip",".sqlite",file_name)))
+  mutate(output_file=paste0("output/", gsub(".zip",".gpkg",file_name)))
   
 # removing the files that have already been generated and files that haven't
 # been downloaded
@@ -123,7 +123,7 @@ files_df_filtered <- files_df %>%
 
 
 if (!is.null(yearToProcess)) {
-  files_df_filtered %>%
+  files_df_filtered <- files_df_filtered %>%
     filter(year==yearToProcess)
 }
 
@@ -145,6 +145,7 @@ for (i in 1:nrow(files_df_filtered)) {
   
   # loop through all the geocode files and add them to geocode_combined
   for (i in 1:length(geocode_psv_files)) {
+    # i=2
     geocode_current <- read_delim(unz(file_name_current, geocode_psv_files[i]),
                                   delim="|",
                                   col_names=TRUE,
@@ -180,7 +181,9 @@ for (i in 1:nrow(files_df_filtered)) {
     geocode_combined%>%dplyr::select(-DATE_CREATED,-DATE_RETIRED),
     by="ADDRESS_SITE_PID") %>%
     st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = crs_current) %>%
+    st_transform(7845) %>%
     renameGeometryColumn()
+
   rm(geocode_combined,address_combined)
   
   colnames(addresses_final) <- tolower(colnames(addresses_final))
@@ -189,5 +192,6 @@ for (i in 1:nrow(files_df_filtered)) {
   
   
 }
+
 
 

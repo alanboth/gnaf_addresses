@@ -1,2 +1,2 @@
 # gnaf_addresses
-For converting gnaf addresses into sqlite format
+For converting gnaf addresses into geopackage format
